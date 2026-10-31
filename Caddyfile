@@ -1,0 +1,22 @@
+# Caddy automatically obtains and renews an HTTPS certificate from
+# Let's Encrypt for whatever domain you put here, sourced from .env's
+# DOMAIN variable. For local testing without a domain, you can bypass
+# this entirely and just hit http://localhost:4000 (sentinel-app's
+# direct port) — Caddy/HTTPS is for when this is actually public.
+
+{$DOMAIN} {
+	reverse_proxy sentinel-app:3000
+
+	encode gzip
+
+	header {
+		X-Frame-Options "SAMEORIGIN"
+		X-Content-Type-Options "nosniff"
+		Referrer-Policy "no-referrer-when-downgrade"
+		Content-Security-Policy "default-src 'self' http: https: data: blob: 'unsafe-inline'; frame-ancestors 'self';"
+	}
+
+	# Cache static Next.js assets a bit more aggressively
+	@static path /_next/static/*
+	header @static Cache-Control "public, max-age=31536000, immutable"
+}

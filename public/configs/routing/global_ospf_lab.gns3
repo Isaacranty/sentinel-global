@@ -1,0 +1,110 @@
+{
+    "auto_close": true,
+    "auto_open": false,
+    "auto_start": false,
+    "drawing_grid_size": 25,
+    "grid_size": 75,
+    "name": "Switched Attack Lab",
+    "project_id": "a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c5d",
+    "revision": 9,
+    "scene_height": 1000,
+    "scene_width": 2000,
+    "show_grid": false,
+    "show_interface_labels": true,
+    "show_layers": false,
+    "snap_to_grid": false,
+    "supplier": null,
+    "variables": null,
+    "version": "2.2.46",
+    "zoom": 100,
+    "topology": {
+        "computes": [],
+        "drawings": [],
+        "links": [],
+        "nodes": [
+            {
+                "compute_id": "local",
+                "console": 5000,
+                "console_type": "telnet",
+                "label": {
+                    "text": "Sentinel-R1",
+                    "x": 0,
+                    "y": -180
+                },
+                "name": "Sentinel-R1",
+                "node_id": "b1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c51",
+                "node_type": "iou",
+                "port_name_format": "Ethernet{0}/{1}",
+                "port_segment_size": 0,
+                "properties": {
+                    "path": "i86bi-linux-l3-adventerprisek9-15.5.2T.bin",
+                    "ram": 256,
+                    "ethernet_adapters": 2
+                },
+                "x": 0,
+                "y": -150
+            },
+            {
+                "compute_id": "local",
+                "label": {
+                    "text": "Internal-Switch",
+                    "x": 0,
+                    "y": 30
+                },
+                "name": "Internal-Switch",
+                "node_id": "b1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c52",
+                "node_type": "ethernet_switch",
+                "x": 0,
+                "y": 0
+            },
+            {
+                "compute_id": "local",
+                "label": {
+                    "text": "Cloud-Kali",
+                    "x": -200,
+                    "y": 130
+                },
+                "name": "Cloud-Kali",
+                "node_id": "b1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c53",
+                "node_type": "cloud",
+                "properties": {
+                    "interfaces": [{"name": "VMnet2"}]
+                },
+                "x": -200,
+                "y": 100
+            },
+            {
+                "compute_id": "local",
+                "label": {
+                    "text": "Cloud-Metasploit",
+                    "x": 200,
+                    "y": 130
+                },
+                "name": "Cloud-Metasploit",
+                "node_id": "b1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c54",
+                "node_type": "cloud",
+                "properties": {
+                    "interfaces": [{"name": "VMnet3"}]
+                },
+                "x": 200,
+                "y": 100
+            },
+            {
+                "compute_id": "local",
+                "label": {
+                    "text": "Cloud-Mgmt",
+                    "x": 0,
+                    "y": -330
+                },
+                "name": "Cloud-Mgmt",
+                "node_id": "b1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c55",
+                "node_type": "cloud",
+                "properties": {
+                    "interfaces": [{"name": "VMnet8"}]
+                },
+                "x": 0,
+                "y": -300
+            }
+        ]
+    }
+}

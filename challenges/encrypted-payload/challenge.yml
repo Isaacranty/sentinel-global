@@ -1,0 +1,27 @@
+id: api-leak
+title: "Global API Leak"
+category: web
+difficulty: intermediate
+description: >
+  A global logistics API is running in debug mode. 
+  Can you find any sensitive data exposed in its internal configuration?
+image: sentinel-ea/api-leak
+port: 5000
+lifetime_minutes: 30
+resources:
+  cpus: "0.5"
+  memory: "256m"
+  pids_limit: 64
+skills:
+  - type: WEB
+    level: 10
+  - type: OSINT
+    level: 20
+hints:
+  - text: "Check if the API has any standard configuration endpoints like /config or /settings."
+    cost: 50
+  - text: "The system mentions a NODE_ID and global variables. Maybe there is an endpoint at /api/config?"
+    cost: 100
+  - text: "If you have a disk image or a corrupted SD card, try using free tools like PhotoRec or TestDisk to carve out deleted files."
+    cost: 150
+network: isolated

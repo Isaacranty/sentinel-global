@@ -1,0 +1,47 @@
+{
+    "name": "Global OSPF Lab - Switched Attack",
+    "description": "Tactical OSPF & BGP Multi-Area Lab",
+    "version": "2.2.46",
+    "topology": {
+        "nodes": [
+            {
+                "name": "Sentinel-R1",
+                "node_type": "iou",
+                "compute_id": "local",
+                "x": 0,
+                "y": -150,
+                "properties": {
+                    "path": "i86bi-linux-l3-adventerprisek9-15.5.2T.bin"
+                }
+            },
+            {
+                "name": "Internal-Switch",
+                "node_type": "ethernet_switch",
+                "compute_id": "local",
+                "x": 0,
+                "y": 0
+            },
+            {
+                "name": "Cloud-Kali",
+                "node_type": "cloud",
+                "compute_id": "local",
+                "x": -200,
+                "y": 100
+            },
+            {
+                "name": "Cloud-Metasploit",
+                "node_type": "cloud",
+                "compute_id": "local",
+                "x": 200,
+                "y": 100
+            },
+            {
+                "name": "Cloud-Mgmt",
+                "node_type": "cloud",
+                "compute_id": "local",
+                "x": 0,
+                "y": -300
+            }
+        ]
+    }
+}

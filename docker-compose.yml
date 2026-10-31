@@ -1,0 +1,84 @@
+version: '3.8'
+
+services:
+  # Main Application
+  sentinel-app:
+    build: .
+    container_name: sentinel-app
+    restart: always
+    env_file:
+      - .env
+    environment:
+      # Only these two need overriding: inside Docker's network the app
+      # must reach Postgres/Redis by their service names (sentinel-db,
+      # sentinel-cache), not localhost. NEXTAUTH_URL comes from .env
+      # (localhost:4000 for local testing, your real https:// domain
+      # in production) — don't hardcode it here or it'll silently win
+      # over whatever you set in .env.
+      - DATABASE_URL=postgresql://sentinel_user:sentinel_pass@sentinel-db:5432/sentinel_db
+      - REDIS_URL=redis://sentinel-cache:6379
+    ports:
+      - "4000:3000"
+    depends_on:
+      - sentinel-db
+      - sentinel-cache
+    networks:
+      - sentinel-network
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock # Required for CTF orchestrator
+
+  # Production Database
+  sentinel-db:
+    image: postgres:16-alpine
+    container_name: sentinel-db
+    restart: always
+    environment:
+      - POSTGRES_USER=sentinel_user
+      - POSTGRES_PASSWORD=sentinel_pass
+      - POSTGRES_DB=sentinel_db
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - sentinel-network
+
+  # Cache & Rate Limiting
+  sentinel-cache:
+    image: redis:7-alpine
+    container_name: sentinel-cache
+    restart: always
+    networks:
+      - sentinel-network
+
+  # Reverse Proxy (Ingress) with automatic HTTPS via Let's Encrypt.
+  # Needs DOMAIN set in .env to a real domain pointed at this server's
+  # IP — it won't issue a certificate for "localhost".
+  sentinel-proxy:
+    image: caddy:2-alpine
+    container_name: sentinel-proxy
+    restart: always
+    env_file:
+      - .env
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - sentinel-app
+    networks:
+      - sentinel-network
+
+networks:
+  sentinel-network:
+    driver: bridge
+  # Internal network for CTF challenges (no external egress)
+  ctf-isolated-network:
+    driver: bridge
+    internal: true
+
+volumes:
+  postgres_data:
+  caddy_data:
+  caddy_config:

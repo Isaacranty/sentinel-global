@@ -1,0 +1,21 @@
+id: ping-tracer
+title: "Network Tracer"
+category: web
+difficulty: intermediate
+description: >
+  A utility to test network connectivity. It seems to just run 
+  a ping command. Can you make it do something else?
+  The flag is in /tmp/flag.txt.
+image: sentinel-ea/ping-tracer
+port: 5000
+lifetime_minutes: 30
+resources:
+  cpus: "0.5"
+  memory: "256m"
+  pids_limit: 64
+skills:
+  - type: WEB
+    level: 25
+  - type: NETWORK
+    level: 15
+network: isolated

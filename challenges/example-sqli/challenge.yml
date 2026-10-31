@@ -1,0 +1,20 @@
+id: example-sqli
+title: "Staff Portal"
+category: web
+difficulty: beginner
+description: >
+  A staff login portal. Find a way in that doesn't require knowing
+  the admin's password.
+image: sentinel-ea/example-sqli
+port: 5000
+lifetime_minutes: 30
+resources:
+  cpus: "0.5"
+  memory: "256m"
+  pids_limit: 64
+skills:
+  - type: WEB
+    level: 20
+  - type: CRYPTO
+    level: 5
+network: isolated

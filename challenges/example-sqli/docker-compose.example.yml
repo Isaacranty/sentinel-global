@@ -1,0 +1,35 @@
+# Manual test harness for ONE instance of this challenge — this is
+# what the orchestrator needs to replicate programmatically per user
+# (with a unique flag and network per instance), not something to
+# run as-is in production.
+#
+# Requires gVisor installed and registered as a Docker runtime
+# (runtime: runsc) for the kernel-isolation layer described in
+# /docs/ctf-sandbox-design.md. Falls back to default runc if you
+# haven't set that up yet, but that's a weaker sandbox — fine for
+# local orchestrator development, not for real users.
+
+services:
+  example-sqli:
+    build: .
+    # runtime: runsc   # uncomment once gVisor is installed
+    read_only: true
+    tmpfs:
+      - /tmp:size=64m
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    pids_limit: 64
+    mem_limit: 256m
+    cpus: 0.5
+    environment:
+      - FLAG=SENTINEL{test_flag_for_local_dev_only}
+    ports:
+      - "5000:5000"   # orchestrator should bind a random host port per instance, not a fixed one
+    networks:
+      - challenge_net
+
+networks:
+  challenge_net:
+    internal: true   # no egress to the internet from this network

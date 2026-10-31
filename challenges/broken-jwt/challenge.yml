@@ -1,0 +1,25 @@
+id: broken-jwt
+title: "The Broken Overseer"
+category: web
+difficulty: intermediate
+description: >
+  Access the Executive Dashboard. It uses JWT for authentication. 
+  The guest account is too weak, but maybe you can forge a stronger identity?
+image: sentinel-ea/broken-jwt
+port: 5000
+lifetime_minutes: 30
+resources:
+  cpus: "0.5"
+  memory: "256m"
+  pids_limit: 64
+skills:
+  - type: WEB
+    level: 30
+  - type: CRYPTO
+    level: 20
+hints:
+  - text: "Examine the JWT algorithm used in the header. Are there any other values it might accept?"
+    cost: 50
+  - text: "Try changing the 'alg' to 'none' and removing the signature part of the token."
+    cost: 150
+network: isolated

@@ -1,0 +1,27 @@
+id: global-greeting
+title: "The Global Greeting"
+category: web
+difficulty: intermediate
+description: >
+  A simple service to welcome operators to the platform. 
+  The developers said they used a "modern template engine" to make it 
+  flexible. Can you find a way to read the system flag?
+  The flag is in /tmp/flag.txt.
+image: sentinel-ea/global-greeting
+port: 5000
+lifetime_minutes: 30
+resources:
+  cpus: "0.5"
+  memory: "256m"
+  pids_limit: 64
+skills:
+  - type: WEB
+    level: 30
+  - type: LINUX
+    level: 10
+hints:
+  - text: "Try inputting {{7*7}}. Does it return 49?"
+    cost: 50
+  - text: "This is Jinja2. You can navigate the Python object hierarchy. Try something like {{ self.__class__.__mro__[1] }}."
+    cost: 150
+network: isolated

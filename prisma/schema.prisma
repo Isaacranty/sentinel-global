@@ -1,0 +1,261 @@
+// Prisma schema for Sentinel Global.
+//
+// Running on Supabase Postgres:
+// - DATABASE_URL = pooled connection string (port 6543, ?pgbouncer=true),
+//                  used by the app at runtime (serverless-friendly)
+// - DIRECT_URL   = direct connection string (port 5432), used only by
+//                  Prisma Migrate/Studio, since pgbouncer can't handle
+//                  the prepared statements those need
+// Both are on your Supabase project's Settings > Database page.
+
+datasource db {
+  provider  = "sqlite"
+  url       = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id                String              @id @default(uuid())
+  email             String              @unique
+  passwordHash      String?
+  name              String
+  role              String              @default("user") // "user" | "admin"
+  spentXp           Int                 @default(0)
+  createdAt         DateTime            @default(now())
+  avatarUrl         String?
+
+  // Moderation
+  banned            Boolean             @default(false)
+  bannedReason      String?
+  bannedAt          DateTime?
+
+  // Email verification — null until the user clicks the link we
+  // send at registration. verificationToken is cleared once used.
+  emailVerified     DateTime?
+  verificationToken String?             @unique
+
+  // Relations
+  threads        Thread[]
+  replies        Reply[]
+  instances      ChallengeInstance[]
+  progress       ResourceProgress[]
+  courseProgress CourseProgress[]
+  reactions      Reaction[]
+  bookmarks      Bookmark[]
+  writeUps       WriteUp[]
+  hints          HintUnlock[]
+  activities     Activity[]
+  notifications  Notification[]
+  certificates   Certificate[]
+  reportsFiled   Report[]            @relation("ReportsFiled")
+
+  // Squads
+  team           Team?               @relation(fields: [teamId], references: [id])
+  teamId         String?
+  isTeamLeader   Boolean             @default(false)
+
+  // Intelligence Briefing
+  subscribedToBrief Boolean          @default(true)
+}
+
+model DailyBrief {
+  id        String   @id @default(uuid())
+  date      DateTime @unique @default(now())
+  content   String   // JSON string of the brief data
+  createdAt DateTime @default(now())
+}
+
+model Report {
+  id         String   @id @default(uuid())
+  reason     String
+  status     String   @default("open") // "open" | "resolved" | "dismissed"
+  evidenceUrl String?
+  reporter   User     @relation("ReportsFiled", fields: [reporterId], references: [id])
+  reporterId String
+  thread     Thread?  @relation(fields: [threadId], references: [id], onDelete: Cascade)
+  threadId   String?
+  reply      Reply?   @relation(fields: [replyId], references: [id], onDelete: Cascade)
+  replyId    String?
+  createdAt  DateTime @default(now())
+
+  @@index([status])
+}
+
+model Team {
+  id          String   @id @default(uuid())
+  name        String   @unique
+  description String?
+  inviteCode  String   @unique
+  createdAt   DateTime @default(now())
+  members     User[]
+  activities  Activity[] // Optional: Team-wide activities
+}
+
+model Notification {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type      String   // "REPLY" | "VERIFIED" | "XP_EARNED" | "SYSTEM"
+  title     String
+  message   String
+  link      String?
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@index([userId, read])
+}
+
+model Certificate {
+  id          String   @id @default(uuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  courseId    String
+  courseTitle String
+  issuedAt    DateTime @default(now())
+  certHash    String   @unique // For verification
+
+  @@unique([userId, courseId])
+}
+
+model Bookmark {
+  id          String   @id @default(uuid())
+  user        User     @relation(fields: [userId], references: [id])
+  userId      String
+  thread      Thread?  @relation(fields: [threadId], references: [id], onDelete: Cascade)
+  threadId    String?
+  newsUrl     String?
+  title       String
+  createdAt   DateTime @default(now())
+
+  @@unique([userId, threadId])
+  @@unique([userId, newsUrl])
+}
+
+model Thread {
+  id          String   @id @default(uuid())
+  title       String
+  body        String
+  createdAt   DateTime @default(now())
+  contextType String   @default("general") // "news" | "path" | "general"
+  refTitle    String?
+  refUrl      String?
+  verified    Boolean  @default(false)
+  replies     Reply[]
+  author      User     @relation(fields: [authorId], references: [id])
+  authorId    String
+  reactions   Reaction[]
+  bookmarks   Bookmark[]
+  reports     Report[]
+
+  @@index([createdAt])
+}
+
+model Reply {
+  id        String   @id @default(uuid())
+  body      String
+  createdAt DateTime @default(now())
+  thread    Thread   @relation(fields: [threadId], references: [id], onDelete: Cascade)
+  threadId  String
+  author    User     @relation(fields: [authorId], references: [id])
+  authorId  String
+  reactions Reaction[]
+  reports   Report[]
+
+  @@index([threadId])
+}
+
+model Reaction {
+  id        String   @id @default(uuid())
+  type      String   // "UPVOTE" | "DOWNVOTE" | "SIGNAL" | "ALERT"
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String
+  thread    Thread?  @relation(fields: [threadId], references: [id], onDelete: Cascade)
+  threadId  String?
+  reply     Reply?   @relation(fields: [replyId], references: [id], onDelete: Cascade)
+  replyId   String?
+
+  @@unique([userId, threadId, type])
+  @@unique([userId, replyId, type])
+}
+
+model ChallengeInstance {
+  id          String    @id @default(uuid())
+  user        User      @relation(fields: [userId], references: [id])
+  userId      String
+  challengeId String
+  flag        String
+  containerId String?
+  networkId   String?
+  containerIp String?
+  status      String    @default("starting")
+  startedAt   DateTime  @default(now())
+  expiresAt   DateTime
+  solvedAt    DateTime?
+
+  @@index([userId, challengeId])
+  @@index([status, expiresAt])
+}
+
+model ResourceProgress {
+  id          String   @id @default(uuid())
+  user        User     @relation(fields: [userId], references: [id])
+  userId      String
+  pathId      String
+  resourceUrl String
+  completedAt DateTime @default(now())
+
+  @@unique([userId, resourceUrl])
+  @@index([userId, pathId])
+}
+
+model CourseProgress {
+  id          String   @id @default(uuid())
+  user        User     @relation(fields: [userId], references: [id])
+  userId      String
+  courseId    String
+  lessonId    String
+  completedAt DateTime @default(now())
+
+  @@unique([userId, courseId, lessonId])
+}
+
+model WriteUp {
+  id            String   @id @default(uuid())
+  challengeId   String
+  title         String
+  content       String
+  attachmentUrl String?
+  author        User     @relation(fields: [authorId], references: [id])
+  authorId    String
+  createdAt   DateTime @default(now())
+  verified    Boolean  @default(false)
+
+  @@index([challengeId])
+}
+
+model HintUnlock {
+  id          String   @id @default(uuid())
+  user        User     @relation(fields: [userId], references: [id])
+  userId      String
+  challengeId String
+  hintId      Int
+  createdAt   DateTime @default(now())
+
+  @@unique([userId, challengeId, hintId])
+}
+
+model Activity {
+  id        String   @id @default(uuid())
+  type      String   // "CHALLENGE_SOLVED" | "COURSE_COMPLETED" | "VERIFIED_SIGNAL" | "LEVEL_UP"
+  data      String   // JSON string with extra details
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String
+  team      Team?    @relation(fields: [teamId], references: [id])
+  teamId    String?
+  createdAt DateTime @default(now())
+
+  @@index([createdAt])
+}

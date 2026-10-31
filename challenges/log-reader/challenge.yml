@@ -1,0 +1,21 @@
+id: log-reader
+title: "Under the Hood"
+category: web
+difficulty: beginner
+description: >
+  A internal system log viewer. The administrator said it's secure 
+  because it only lists files in the log directory. Is it?
+  Find the flag in /tmp/flag.txt.
+image: sentinel-ea/log-reader
+port: 5000
+lifetime_minutes: 30
+resources:
+  cpus: "0.5"
+  memory: "256m"
+  pids_limit: 64
+skills:
+  - type: WEB
+    level: 15
+  - type: FORENSICS
+    level: 10
+network: isolated
